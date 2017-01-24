@@ -149,10 +149,11 @@ namespace DTPrefabSandbox {
             GameObject prefabInstance = PrefabSandbox._data.prefabInstance;
             bool isPartOfPrefabInstance = g == prefabInstance || g.GetParents().Any(parent => parent == prefabInstance);
             if (isPartOfPrefabInstance) {
+                float alpha = EditorGUIUtility.isProSkin ? 1.0f : 0.15f;
                 if (UnityEditor.AnimationMode.InAnimationMode()) {
-                    GUI.backgroundColor = Color.red.WithAlpha(0.15f);
+                    GUI.backgroundColor = Color.red.WithAlpha(alpha);
                 } else {
-                    GUI.backgroundColor = Color.yellow.WithAlpha(0.15f);
+                    GUI.backgroundColor = Color.yellow.WithAlpha(alpha);
                 }
 
                 GUI.Box(selectionRect, "");
