@@ -163,6 +163,10 @@ namespace DTPrefabSandbox {
         }
 
         private static bool IsEditing() {
+            if (PrefabSandbox._sandboxScene != EditorSceneManager.GetActiveScene()) {
+                return false;
+            }
+
             return PrefabSandbox._data != null;
         }
 
@@ -207,6 +211,7 @@ namespace DTPrefabSandbox {
 
         private static void CloseSandboxScene() {
             if (!PrefabSandbox.IsEditing()) {
+                PrefabSandbox.Cleanup();
                 return;
             }
 
@@ -216,12 +221,18 @@ namespace DTPrefabSandbox {
                 }
             }
 
+            PrefabSandbox.Cleanup();
+        }
+
+        private static void Cleanup() {
             // Cleanup validator before modifying scene to avoid extra validations
             PrefabSandbox.CleanupValidator();
             PrefabSandbox.ClearAllGameObjectsInSandbox();
             PrefabSandbox._sandboxScene = default(Scene);
 
-            EditorSceneManager.OpenScene(PrefabSandbox._data.oldScenePath);
+            if (PrefabSandbox._data != null && !PrefabSandbox._data.oldScenePath.IsNullOrEmpty()) {
+                EditorSceneManager.OpenScene(PrefabSandbox._data.oldScenePath);
+            }
             PrefabSandbox.ClearPrefabData();
         }
 
@@ -259,6 +270,10 @@ namespace DTPrefabSandbox {
         }
 
         private static void ClearAllGameObjectsInSandbox() {
+            if (!PrefabSandbox._sandboxScene.IsValid()) {
+                return;
+            }
+
             foreach (GameObject obj in PrefabSandbox._sandboxScene.GetRootGameObjects()) {
                 GameObject.DestroyImmediate(obj);
             }
