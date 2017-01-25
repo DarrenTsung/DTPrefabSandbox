@@ -1,4 +1,3 @@
-using DTCommandPalette;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -22,23 +21,14 @@ namespace DTPrefabSandbox {
             }
         }
 
-        [MethodCommand]
-        public static void CollapseAllObjectsInHierarchyExceptCurrentlySelected() {
-            HierarchyUtil.SetFoldValueForAllGameObjectsInHiearchy(FoldValue.COLLAPSED);
-            HierarchyUtil.SetFoldValueForGameObjectInHiearchyRecursive(Selection.activeGameObject, FoldValue.EXPANDED);
-        }
-
-        [MethodCommand]
         public static void CollapseAllObjectsInHierarchy() {
             HierarchyUtil.SetFoldValueForAllGameObjectsInHiearchy(FoldValue.COLLAPSED);
         }
 
-        [MethodCommand]
         public static void ExpandAllObjectsInHierarchy() {
             HierarchyUtil.SetFoldValueForAllGameObjectsInHiearchy(FoldValue.EXPANDED);
         }
 
-        [MethodCommand]
         public static void ExpandCurrentSelectedObjectInHierarchy() {
             HierarchyUtil.SetFoldValueForGameObjectInHiearchyRecursive(Selection.activeGameObject, FoldValue.EXPANDED);
         }
