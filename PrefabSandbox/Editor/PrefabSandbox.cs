@@ -291,8 +291,11 @@ namespace DTPrefabSandbox {
             }
 
             var deserializedData = JsonUtility.FromJson<PrefabSandboxData>(serialized);
-            var prefabInstance = GameObject.Find(deserializedData.prefabAsset.name);
+            if (deserializedData.prefabAsset == null) {
+                return;
+            }
 
+            var prefabInstance = GameObject.Find(deserializedData.prefabAsset.name);
             if (prefabInstance == null) {
                 return;
             }
