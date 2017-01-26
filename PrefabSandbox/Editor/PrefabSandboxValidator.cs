@@ -36,15 +36,24 @@ namespace DTPrefabSandbox {
         private const float kErrorHeight = 20.0f;
         private const float kErrorSpacingHeight = 2.0f;
         private const float kErrorWidth = 275.0f;
+        private const float kLinkWidth = 40.0f;
 
-        private static readonly Color kErrorColor = ColorUtil.HexStringToColor("#EA827A");
+        private static readonly Color kErrorColor = ColorUtil.HexStringToColor("#dc4d4d");
 
         private static GUIStyle _kButtonStyle = null;
         private static GUIStyle kButtonStyle {
             get {
+                // NOTE (darren): sometimes the textures can get dealloc
+                // and appear as nothing - we recreate them here
+                if (_kButtonStyle != null && _kButtonStyle.normal.background == null) {
+                    _kButtonStyle = null;
+                }
+
                 if (_kButtonStyle == null) {
                     _kButtonStyle = new GUIStyle(GUI.skin.GetStyle("Button"));
                     _kButtonStyle.alignment = TextAnchor.MiddleRight;
+                    _kButtonStyle.normal.background = Texture2DUtil.GetCached1x1TextureWithColor(Color.black.WithAlpha(0.5f));
+                    _kButtonStyle.active.background = Texture2DUtil.GetCached1x1TextureWithColor(Color.black.WithAlpha(0.3f));
                 }
                 return _kButtonStyle;
             }
@@ -73,11 +82,8 @@ namespace DTPrefabSandbox {
             }
 
             Handles.BeginGUI();
-            Color previousColor = GUI.color;
 
             // BEGIN SCENE GUI
-            GUI.color = kErrorColor;
-
             float yPosition = 0.0f;
             foreach (GameObjectValidator.ValidationError error in this._cachedValidationErrors) {
                 // NOTE (darren): it's possible that OnSceneGUI gets called after
@@ -86,18 +92,26 @@ namespace DTPrefabSandbox {
                     continue;
                 }
 
+                var oldContentColor = GUI.contentColor;
+                GUI.contentColor = kErrorColor;
+
                 var rect = new Rect(0.0f, yPosition, kErrorWidth, kErrorHeight);
-                var errorDescription = string.Format("{0}->{1}->{2}", error.component.gameObject.name, error.componentType.Name, error.fieldInfo.Name);
+                var errorDescription = string.Format("{0}->{1}.{2}", error.component.gameObject.name, error.componentType.Name, error.fieldInfo.Name);
 
                 if (GUI.Button(rect, errorDescription, kButtonStyle)) {
                     Selection.activeGameObject = error.component.gameObject;
                 }
 
+                GUI.contentColor = oldContentColor;
+
+                var linkRect = new Rect(kErrorWidth + 2.0f, yPosition, kLinkWidth, kErrorHeight);
+                if (GUI.Button(linkRect, "Link", kButtonStyle)) {
+                    LinkValidationError(error);
+                }
+
                 yPosition += kErrorHeight + kErrorSpacingHeight;
             }
             // END SCENE GUI
-
-            GUI.color = previousColor;
             Handles.EndGUI();
         }
 
@@ -129,6 +143,34 @@ namespace DTPrefabSandbox {
                     this._objectsWithErrors.Add(error.component.gameObject);
                 }
             }
+        }
+
+        private void LinkValidationError(GameObjectValidator.ValidationError error) {
+            var selectedGameObject = Selection.activeGameObject;
+            if (selectedGameObject == null) {
+                Debug.LogWarning("Cannot link when no selected game object!");
+                return;
+            }
+
+            var fieldType = error.fieldInfo.FieldType;
+            if (fieldType == typeof(UnityEngine.GameObject)) {
+                error.fieldInfo.SetValue(error.component, selectedGameObject);
+            } else if (typeof(UnityEngine.Component).IsAssignableFrom(fieldType)) {
+                var linkedComponent = selectedGameObject.GetComponent(fieldType);
+                if (linkedComponent == null) {
+                    Debug.LogWarning("LinkValidationError: Failed to find component of type: " + fieldType.Name + " on selected game object, cannot link!");
+                    return;
+                }
+
+                error.fieldInfo.SetValue(error.component, linkedComponent);
+            } else {
+                Debug.LogWarning("LinkValidationError: Field is of unhandled type: " + fieldType.Name + ", cannot link!");
+                return;
+            }
+
+            SceneView.RepaintAll();
+            EditorUtility.SetDirty(error.component);
+            RefreshValidationErrors();
         }
     }
 }
