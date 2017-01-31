@@ -1,3 +1,4 @@
+#if DT_COMMAND_PALETTE
 using System;
 using System.Collections;
 using System.IO;
@@ -22,3 +23,4 @@ namespace DTPrefabSandbox {
         }
     }
 }
+#endif
