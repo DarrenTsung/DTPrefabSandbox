@@ -39,8 +39,6 @@ namespace DTPrefabSandbox {
         private const float kLinkWidth = 40.0f;
         private const float kLinkPadding = 3.0f;
 
-        private static readonly Color kErrorColor = ColorUtil.HexStringToColor("#dc4d4d");
-
         private static GUIStyle _kButtonStyle = null;
         private static GUIStyle kButtonStyle {
             get {
@@ -96,7 +94,7 @@ namespace DTPrefabSandbox {
                 }
 
                 var oldContentColor = GUI.contentColor;
-                GUI.contentColor = kErrorColor;
+                GUI.contentColor = PrefabSandbox.kErrorColor;
 
                 var rect = new Rect(0.0f, yPosition, kErrorWidth, kErrorHeight);
                 var errorDescription = string.Format("{0}->{1}.{2}", error.component.gameObject.name, error.componentType.Name, error.fieldInfo.Name);

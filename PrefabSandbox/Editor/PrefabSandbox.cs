@@ -11,6 +11,8 @@ using UnityEngine.SceneManagement;
 namespace DTPrefabSandbox {
     [InitializeOnLoad]
     public class PrefabSandbox {
+        public static readonly Color kErrorColor = ColorUtil.HexStringToColor("#dc4d4d");
+
         private const string kSandboxSetupPrefabName = "PrefabSandboxSetupPrefab";
 
         [Serializable]
@@ -112,7 +114,8 @@ namespace DTPrefabSandbox {
         }
 
         private const float kSceneButtonHeight = 20.0f;
-        private const float kPreviousSceneButtonWidth = 120.0f;
+        private const float kSaveAndExitButtonWidth = 120.0f;
+        private const float kRevertButtonWidth = 80.0f;
 
         private static void OnSceneGUI(SceneView sceneView) {
             if (!PrefabSandbox.IsEditing()) {
@@ -124,9 +127,14 @@ namespace DTPrefabSandbox {
 
             // BEGIN SCENE GUI
             GUI.color = Color.green;
-            if (GUI.Button(new Rect(sceneView.position.size.x - PrefabSandbox.kPreviousSceneButtonWidth, 0.0f, PrefabSandbox.kPreviousSceneButtonWidth, PrefabSandbox.kSceneButtonHeight), "Save and Exit")) {
+            if (GUI.Button(new Rect(sceneView.position.size.x - kSaveAndExitButtonWidth, 0.0f, kSaveAndExitButtonWidth, kSceneButtonHeight), "Save and Exit")) {
                 PrefabSandbox.SavePrefabInstance();
                 PrefabSandbox.CloseSandboxScene();
+            }
+
+            GUI.color = kErrorColor;
+            if (GUI.Button(new Rect(sceneView.position.size.x - kRevertButtonWidth, kSceneButtonHeight, kRevertButtonWidth, kSceneButtonHeight), "Revert")) {
+                PrefabSandbox.RevertPrefabInstance();
             }
             // END SCENE GUI
 
@@ -269,6 +277,11 @@ namespace DTPrefabSandbox {
 
             PrefabUtility.ReplacePrefab(PrefabSandbox._data.prefabInstance, PrefabSandbox._data.prefabAsset, ReplacePrefabOptions.Default);
             PrefabUtility.DisconnectPrefabInstance(PrefabSandbox._data.prefabInstance);
+        }
+
+        private static void RevertPrefabInstance() {
+            // NOTE (darren): alias for CreatePrefabInstance because it will recreate if necessary
+            CreatePrefabInstance();
         }
 
         private static void ClearAllGameObjectsInSandbox() {
