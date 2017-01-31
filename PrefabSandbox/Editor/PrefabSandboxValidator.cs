@@ -37,6 +37,7 @@ namespace DTPrefabSandbox {
         private const float kErrorSpacingHeight = 2.0f;
         private const float kErrorWidth = 275.0f;
         private const float kLinkWidth = 40.0f;
+        private const float kLinkPadding = 3.0f;
 
         private static readonly Color kErrorColor = ColorUtil.HexStringToColor("#dc4d4d");
 
@@ -52,6 +53,8 @@ namespace DTPrefabSandbox {
                 if (_kButtonStyle == null) {
                     _kButtonStyle = new GUIStyle(GUI.skin.GetStyle("Button"));
                     _kButtonStyle.alignment = TextAnchor.MiddleRight;
+                    _kButtonStyle.padding.right = (int)(kLinkWidth + (2.0f * kLinkPadding) + 2);
+                    _kButtonStyle.padding.top = 3;
                     _kButtonStyle.normal.background = Texture2DUtil.GetCached1x1TextureWithColor(Color.black.WithAlpha(0.5f));
                     _kButtonStyle.active.background = Texture2DUtil.GetCached1x1TextureWithColor(Color.black.WithAlpha(0.3f));
                 }
@@ -104,8 +107,8 @@ namespace DTPrefabSandbox {
 
                 GUI.contentColor = oldContentColor;
 
-                var linkRect = new Rect(kErrorWidth + 2.0f, yPosition, kLinkWidth, kErrorHeight);
-                if (GUI.Button(linkRect, "Link", kButtonStyle)) {
+                var linkRect = new Rect(kErrorWidth - kLinkWidth - kLinkPadding, yPosition + kLinkPadding, kLinkWidth, kErrorHeight- kLinkPadding);
+                if (GUI.Button(linkRect, "Link")) {
                     LinkValidationError(error);
                 }
 
