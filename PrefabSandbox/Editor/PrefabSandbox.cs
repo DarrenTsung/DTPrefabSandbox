@@ -50,28 +50,28 @@ namespace DTPrefabSandbox {
 
 
         // PRAGMA MARK - Public Interface
-        public static void OpenPrefab(string guid) {
+        public static bool OpenPrefab(string guid) {
             string assetPath = AssetDatabase.GUIDToAssetPath(guid);
             GameObject prefab = AssetDatabase.LoadAssetAtPath(assetPath, typeof(GameObject)) as GameObject;
 
-            PrefabSandbox.OpenPrefab(prefab);
+            return PrefabSandbox.OpenPrefab(prefab);
         }
 
-        public static void OpenPrefab(GameObject prefab) {
+        public static bool OpenPrefab(GameObject prefab) {
             if (prefab == null) {
                 Debug.LogError("Can't OpenPrefab in Prefab Sandbox: Prefab argument is null!");
-                return;
+                return false;
             }
 
             string assetPath = AssetDatabase.GetAssetPath(prefab);
             if (assetPath.IsNullOrEmpty()) {
                 Debug.LogError("Can't OpenPrefab in Prefab Sandbox: Failed to get AssetPath!");
-                return;
+                return false;
             }
 
             if (!PathUtil.IsPrefab(assetPath)) {
                 Debug.LogError("Can't OpenPrefab in Prefab Sandbox: AssetPath is not a prefab!");
-                return;
+                return false;
             }
 
             string guid = AssetDatabase.AssetPathToGUID(assetPath);
@@ -79,7 +79,7 @@ namespace DTPrefabSandbox {
             bool alreadyEditing = (PrefabSandbox._data != null && PrefabSandbox._data.prefabGuid == guid);
             if (alreadyEditing) {
                 Debug.LogError("Can't OpenPrefab in Prefab Sandbox: already editing a prefab!");
-                return;
+                return false;
             }
 
             Scene oldScene = EditorSceneManager.GetActiveScene();
@@ -89,7 +89,7 @@ namespace DTPrefabSandbox {
                 oldScenePath = PrefabSandbox._data.oldScenePath;
             } else {
                 if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) {
-                    return;
+                    return false;
                 }
             }
 
@@ -101,6 +101,7 @@ namespace DTPrefabSandbox {
 
             PrefabSandbox.SavePrefabData();
             PrefabSandbox.SetupSandbox();
+            return true;
         }
 
 
