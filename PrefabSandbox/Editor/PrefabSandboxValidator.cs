@@ -93,6 +93,11 @@ namespace DTPrefabSandbox {
                     continue;
                 }
 
+                var linkRect = new Rect(kErrorWidth - kLinkWidth - kLinkPadding, yPosition + kLinkPadding, kLinkWidth, kErrorHeight - kLinkPadding);
+                if (GUI.Button(linkRect, "Link")) {
+                    LinkValidationError(error);
+                }
+
                 var oldContentColor = GUI.contentColor;
                 GUI.contentColor = PrefabSandbox.kErrorColor;
 
@@ -105,9 +110,11 @@ namespace DTPrefabSandbox {
 
                 GUI.contentColor = oldContentColor;
 
-                var linkRect = new Rect(kErrorWidth - kLinkWidth - kLinkPadding, yPosition + kLinkPadding, kLinkWidth, kErrorHeight- kLinkPadding);
                 if (GUI.Button(linkRect, "Link")) {
-                    LinkValidationError(error);
+                    // empty (no-action) button for the visual look
+                    // NOTE (darren): it appears the order in which GUI.button is
+                    // called determines the ordering for which button consumes the touch
+                    // but also the order is used to render :)
                 }
 
                 yPosition += kErrorHeight + kErrorSpacingHeight;
