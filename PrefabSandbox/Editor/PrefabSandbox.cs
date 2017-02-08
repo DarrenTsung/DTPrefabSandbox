@@ -78,6 +78,12 @@ namespace DTPrefabSandbox {
 
             string guid = AssetDatabase.AssetPathToGUID(assetPath);
 
+            // NOTE (darren): before checking if already editing
+            // check if we're not in the sandbox scene (if so, cleanup)
+            if (EditorSceneManager.GetActiveScene() != PrefabSandbox._sandboxScene) {
+                PrefabSandbox.Cleanup();
+            }
+
             bool alreadyEditing = (PrefabSandbox._data != null && PrefabSandbox._data.prefabGuid == guid);
             if (alreadyEditing) {
                 Debug.LogError("Can't OpenPrefab in Prefab Sandbox: already editing a prefab!");
