@@ -5,6 +5,8 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
+using DTPrefabSandbox.Internal;
+
 namespace DTPrefabSandbox {
     public class PrefabSandboxValidator : IDisposable {
         // PRAGMA MARK - Public Interface

@@ -8,6 +8,8 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 
+using DTPrefabSandbox.Internal;
+
 namespace DTPrefabSandbox {
     public static class GameObjectValidator {
         public class ValidationError {
@@ -56,6 +58,20 @@ namespace DTPrefabSandbox {
                     }
 
                     Type componentType = c.GetType();
+
+                    // allow user defined ignores for namespaces
+                    bool inIgnoredNamespace = false;
+                    foreach (var validatorIgnoredNamespace in AssetDatabaseUtil.AllAssetsOfType<ValidatorIgnoredNamespace>()) {
+                        if (componentType.Namespace.Contains(validatorIgnoredNamespace.Namespace)) {
+                            inIgnoredNamespace = true;
+                            break;
+                        }
+                    }
+
+                    if (inIgnoredNamespace) {
+                        continue;
+                    }
+
                     foreach (FieldInfo fieldInfo in TypeUtil.GetInspectorFields(componentType)
                     .Where(f => typeof(UnityEventBase).IsAssignableFrom(f.FieldType))
                     .Where(f => !Attribute.IsDefined(f, typeof(OptionalAttribute)) && !Attribute.IsDefined(f, typeof(HideInInspector)))) {

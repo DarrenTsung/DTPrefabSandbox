@@ -8,6 +8,8 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+using DTPrefabSandbox.Internal;
+
 namespace DTPrefabSandbox {
     [InitializeOnLoad]
     public class PrefabSandbox {
