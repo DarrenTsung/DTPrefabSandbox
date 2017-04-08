@@ -62,6 +62,15 @@ namespace DTPrefabSandbox {
 					// allow user defined ignores for namespaces
 					bool inIgnoredNamespace = false;
 					foreach (var validatorIgnoredNamespace in AssetDatabaseUtil.AllAssetsOfType<ValidatorIgnoredNamespace>()) {
+						if (validatorIgnoredNamespace == null) {
+							Debug.LogWarning("Bad state - validatorIgnoredNamespace is null!");
+							continue;
+						}
+
+						if (componentType.Namespace == null) {
+							continue;
+						}
+
 						if (componentType.Namespace.Contains(validatorIgnoredNamespace.Namespace)) {
 							inIgnoredNamespace = true;
 							break;
