@@ -6,60 +6,66 @@ using UnityEditor;
 using UnityEngine;
 
 namespace DTPrefabSandbox.Internal {
-    public class RunAnalysisOnPostProcess : AssetPostprocessor {
-        private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths) {
-            AssetDatabaseUtil.ClearCachedAssets();
-        }
-    }
+	public class RunAnalysisOnPostProcess : AssetPostprocessor {
+		private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths) {
+			AssetDatabaseUtil.ClearCachedAssets();
+		}
+	}
 
-    public static class AssetDatabaseUtil {
-        public static void ClearCachedAssets() {
-            _cachedAssets.Clear();
-        }
+	public static class AssetDatabaseUtil {
+		public static void ClearCachedAssets() {
+			cachedAssets_.Clear();
+		}
 
-        public static T LoadAssetAtPath<T>(string assetPath) where T : class {
-            return AssetDatabase.LoadAssetAtPath(assetPath, typeof(T)) as T;
-        }
+		public static T LoadAssetAtPath<T>(string assetPath) where T : class {
+			return AssetDatabase.LoadAssetAtPath(assetPath, typeof(T)) as T;
+		}
 
-        public static string FindSpecificAsset(string findAssetsInput, bool required = true) {
-            string[] guids = AssetDatabase.FindAssets(findAssetsInput);
+		public static string FindSpecificAsset(string findAssetsInput, bool required = true) {
+			string[] guids = AssetDatabase.FindAssets(findAssetsInput);
 
-            if (guids.Length <= 0) {
-                if (required) Debug.LogError(string.Format("FindSpecificAsset: Can't find anything matching ({0}) anywhere in the project", findAssetsInput));
-                return "";
-            }
+			if (guids.Length <= 0) {
+				if (required) {
+					Debug.LogError(string.Format("FindSpecificAsset: Can't find anything matching ({0}) anywhere in the project", findAssetsInput));
+				}
 
-            if (guids.Length > 2) {
-                if (required) Debug.LogError(string.Format("FindSpecificAsset: More than one file found for ({0}) in the project!", findAssetsInput));
-                return "";
-            }
+				return "";
+			}
 
-            return guids[0];
-        }
+			if (guids.Length > 2) {
+				if (required) {
+					Debug.LogError(string.Format("FindSpecificAsset: More than one file found for ({0}) in the project!", findAssetsInput));
+				}
 
-        public static List<T> AllAssetsOfType<T>() where T : UnityEngine.Object {
-            var type = typeof(T);
-            if (!_cachedAssets.ContainsKey(type)) {
-                List<T> assets = new List<T>();
+				return "";
+			}
 
-                var guids = AssetDatabase.FindAssets("t:" + typeof(T).Name);
-                foreach (string guid in guids) {
-                    var asset = AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(guid));
-                    if (asset == null) {
-                        continue;
-                    }
+			return guids[0];
+		}
 
-                    assets.Add(asset);
-                }
+		public static List<T> AllAssetsOfType<T>() where T : UnityEngine.Object {
+			var type = typeof(T);
+			if (!cachedAssets_.ContainsKey(type)) {
+				List<T> assets = new List<T>();
 
-                _cachedAssets[type] = assets;
-            }
+				var guids = AssetDatabase.FindAssets("t:" + typeof(T).Name);
+				foreach (string guid in guids) {
+					var asset = AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(guid));
+					if (asset == null) {
+						continue;
+					}
 
-            return (List<T>)_cachedAssets[type];
-        }
+					assets.Add(asset);
+				}
+
+				cachedAssets_[type] = assets;
+			}
+
+			return (List<T>)cachedAssets_[type];
+		}
 
 
-        private static Dictionary<Type, object> _cachedAssets = new Dictionary<Type, object>();
-    }
+		private static Dictionary<Type, object> cachedAssets_ = new Dictionary<Type, object>();
+	}
 }
 #endif
