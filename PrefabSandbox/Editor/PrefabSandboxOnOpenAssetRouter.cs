@@ -10,6 +10,10 @@ namespace DTPrefabSandbox {
 	public static class PrefabSandboxOnOpenAssetRouter {
 		[OnOpenAssetAttribute(1)]
 		public static bool OnOpenAsset(int instanceID, int line) {
+			if (!PrefabSandboxConfiguration.OpenAssetPrefabsInPrefabSandbox) {
+				return false;
+			}
+
 			var gameObject = EditorUtility.InstanceIDToObject(instanceID) as GameObject;
 			if (gameObject == null) {
 				return false;
