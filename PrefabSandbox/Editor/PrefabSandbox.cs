@@ -92,15 +92,15 @@ namespace DTPrefabSandbox {
 				return false;
 			}
 
+			if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) {
+				return false;
+			}
+
 			Scene oldScene = EditorSceneManager.GetActiveScene();
 			string oldScenePath = oldScene.path;
 
 			if (oldScene == sandboxScene_) {
 				oldScenePath = data_.oldScenePath;
-			} else {
-				if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) {
-					return false;
-				}
 			}
 
 			data_ = new PrefabSandboxData();
