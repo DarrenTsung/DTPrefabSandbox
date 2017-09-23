@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -152,7 +153,7 @@ namespace DTPrefabSandbox {
 
 			objectsWithErrors_.Clear();
 			if (cachedValidationErrors_ != null) {
-				foreach (ComponentValidationError componentError in cachedValidationErrors_) {
+				foreach (ComponentValidationError componentError in cachedValidationErrors_.Where(e => e is ComponentValidationError)) {
 					objectsWithErrors_.Add(componentError.Component.gameObject);
 				}
 			}
