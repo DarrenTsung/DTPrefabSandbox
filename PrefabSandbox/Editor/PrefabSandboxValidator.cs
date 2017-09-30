@@ -60,6 +60,7 @@ namespace DTPrefabSandbox {
 					kButtonStyle_.alignment = TextAnchor.MiddleRight;
 					kButtonStyle_.padding.right = (int)(kLinkWidth + (2.0f * kLinkPadding) + 2);
 					kButtonStyle_.padding.top = 3;
+					kButtonStyle_.normal.textColor = PrefabSandbox.kErrorColor;
 					kButtonStyle_.normal.background = Texture2DUtil.GetCached1x1TextureWithColor(Color.black.WithAlpha(0.5f));
 					kButtonStyle_.active.background = Texture2DUtil.GetCached1x1TextureWithColor(Color.black.WithAlpha(0.3f));
 				}
@@ -107,17 +108,12 @@ namespace DTPrefabSandbox {
 					LinkValidationError(componentError);
 				}
 
-				var oldContentColor = GUI.contentColor;
-				GUI.contentColor = PrefabSandbox.kErrorColor;
-
 				var rect = new Rect(0.0f, yPosition, kErrorWidth, kErrorHeight);
 				var errorDescription = string.Format("{0}->{1}.{2}", componentError.Component.gameObject.name, error.ObjectType.Name, error.MemberInfo.Name);
 
 				if (GUI.Button(rect, errorDescription, kButtonStyle)) {
 					Selection.activeGameObject = componentError.Component.gameObject;
 				}
-
-				GUI.contentColor = oldContentColor;
 
 				if (GUI.Button(linkRect, "Link")) {
 					// empty (no-action) button for the visual look
