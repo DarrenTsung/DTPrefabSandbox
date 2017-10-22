@@ -29,7 +29,9 @@ namespace DTPrefabSandbox {
 
 		private static PrefabSandboxData data_;
 		private static Scene sandboxScene_;
+		#if DT_VALIDATOR
 		private static PrefabSandboxValidator prefabSandboxValidator_;
+		#endif
 
 		private static GameObject sandboxSetupPrefab_;
 		private static GameObject SandboxSetupPrefab_ {
@@ -233,18 +235,22 @@ namespace DTPrefabSandbox {
 				return;
 			}
 
+			#if DT_VALIDATOR
 			if (prefabSandboxValidator_ != null && prefabSandboxValidator_.RefreshAndCheckValiationErrors()) {
 				if (EditorUtility.DisplayDialog("Prefab Validation Errors Found!", "Missing references found in prefab instance.", "I'll fix it", "Ignore it")) {
 					return;
 				}
 			}
+			#endif
 
 			Cleanup();
 		}
 
 		private static void Cleanup() {
 			// Cleanup validator before modifying scene to avoid extra validations
+			#if DT_VALIDATOR
 			CleanupValidator();
+			#endif
 			ClearAllGameObjectsInSandbox();
 			sandboxScene_ = default(Scene);
 
@@ -261,7 +267,9 @@ namespace DTPrefabSandbox {
 
 			data_.prefabInstance = PrefabUtility.InstantiatePrefab(data_.prefabAsset) as GameObject;
 			PrefabUtility.DisconnectPrefabInstance(data_.prefabInstance);
+			#if DT_VALIDATOR
 			ReloadValidator();
+			#endif
 
 			// if the prefab is a UI element, child it under a canvas
 			if (data_.prefabInstance.GetComponent<RectTransform>() != null) {
@@ -326,9 +334,12 @@ namespace DTPrefabSandbox {
 			data_ = deserializedData;
 			data_.prefabInstance = prefabInstance;
 
+			#if DT_VALIDATOR
 			ReloadValidator();
+			#endif
 		}
 
+		#if DT_VALIDATOR
 		private static void ReloadValidator() {
 			if (data_ == null) {
 				Debug.LogError("Can't reload validator - _data is null!");
@@ -351,6 +362,7 @@ namespace DTPrefabSandbox {
 				prefabSandboxValidator_ = null;
 			}
 		}
+		#endif
 
 		private static void ClearPrefabData() {
 			data_ = null;

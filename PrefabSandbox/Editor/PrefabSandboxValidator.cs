@@ -1,3 +1,4 @@
+#if DT_VALIDATOR
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -187,3 +188,4 @@ namespace DTPrefabSandbox {
 		}
 	}
 }
+#endif
