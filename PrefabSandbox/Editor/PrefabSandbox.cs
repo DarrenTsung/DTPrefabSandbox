@@ -212,16 +212,6 @@ namespace DTPrefabSandbox {
 			EditorSceneManager.SetActiveScene(sandboxScene_);
 
 			if (sandboxScene_.isLoaded) {
-				ClearAllGameObjectsInSandbox();
-
-				// setup scene with sandbox setup prefab
-				if (SandboxSetupPrefab_ == null) {
-					Debug.LogWarning("Failed to find a sandbox setup prefab! If you want to customize your sandbox (to add a light, camera, canvas, etc), it is recommended to create a prefab named " + kSandboxSetupPrefabName + "!");
-				} else {
-					GameObject sandboxSetupObject = GameObject.Instantiate(SandboxSetupPrefab_);
-					sandboxSetupObject.transform.localPosition = Vector3.zero;
-				}
-
 				if (!CreatePrefabInstance()) {
 					CloseSandboxScene();
 					return;
@@ -261,9 +251,28 @@ namespace DTPrefabSandbox {
 		}
 
 		private static bool CreatePrefabInstance() {
-			if (data_.prefabInstance != null) {
-				GameObject.DestroyImmediate(data_.prefabInstance);
+			ClearAllGameObjectsInSandbox();
+
+			data_.prefabInstance = null;
+
+			// setup scene with sandbox setup prefab
+			if (SandboxSetupPrefab_ == null) {
+				Debug.LogWarning("Failed to find a sandbox setup prefab! If you want to customize your sandbox (to add a light, camera, canvas, etc), it is recommended to create a prefab named " + kSandboxSetupPrefabName + "!");
+			} else {
+				GameObject sandboxSetupObject = GameObject.Instantiate(SandboxSetupPrefab_);
+				sandboxSetupObject.transform.localPosition = Vector3.zero;
 			}
+
+			GameObject parent = null;
+			// if the prefab is a UI element, child it under a canvas
+			if (data_.prefabAsset.GetComponent<RectTransform>() != null) {
+				var canvas = UnityEngine.Object.FindObjectOfType<Canvas>();
+				if (canvas != null) {
+					parent = canvas.gameObject;
+				}
+			}
+
+			parent = PrefabParentLinkManager.CreateLinkedParentsForPrefab(data_.prefabAsset, parent);
 
 			data_.prefabInstance = PrefabUtility.InstantiatePrefab(data_.prefabAsset) as GameObject;
 			PrefabUtility.DisconnectPrefabInstance(data_.prefabInstance);
@@ -271,12 +280,8 @@ namespace DTPrefabSandbox {
 			ReloadValidator();
 			#endif
 
-			// if the prefab is a UI element, child it under a canvas
-			if (data_.prefabInstance.GetComponent<RectTransform>() != null) {
-				var canvas = UnityEngine.Object.FindObjectOfType<Canvas>();
-				if (canvas != null) {
-					data_.prefabInstance.transform.SetParent(canvas.transform, worldPositionStays: false);
-				}
+			if (parent != null) {
+				data_.prefabInstance.transform.SetParent(parent.transform, worldPositionStays: false);
 			}
 
 			Selection.activeGameObject = data_.prefabInstance;
