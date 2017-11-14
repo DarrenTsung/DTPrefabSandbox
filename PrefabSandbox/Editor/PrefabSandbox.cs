@@ -10,6 +10,10 @@ using UnityEngine.SceneManagement;
 
 using DTPrefabSandbox.Internal;
 
+#if DT_VALIDATOR
+using DTValidator;
+#endif
+
 namespace DTPrefabSandbox {
 	[InitializeOnLoad]
 	public class PrefabSandbox {
@@ -29,9 +33,6 @@ namespace DTPrefabSandbox {
 
 		private static PrefabSandboxData data_;
 		private static Scene sandboxScene_;
-		#if DT_VALIDATOR
-		private static PrefabSandboxValidator prefabSandboxValidator_;
-		#endif
 
 		private static GameObject sandboxSetupPrefab_;
 		private static GameObject SandboxSetupPrefab_ {
@@ -226,7 +227,7 @@ namespace DTPrefabSandbox {
 			}
 
 			#if DT_VALIDATOR
-			if (prefabSandboxValidator_ != null && prefabSandboxValidator_.RefreshAndCheckValiationErrors()) {
+			if (SceneViewValidator.RefreshAndCheckValiationErrors()) {
 				if (EditorUtility.DisplayDialog("Prefab Validation Errors Found!", "Missing references found in prefab instance.", "I'll fix it", "Ignore it")) {
 					return;
 				}
@@ -237,10 +238,6 @@ namespace DTPrefabSandbox {
 		}
 
 		private static void Cleanup() {
-			// Cleanup validator before modifying scene to avoid extra validations
-			#if DT_VALIDATOR
-			CleanupValidator();
-			#endif
 			ClearAllGameObjectsInSandbox();
 			sandboxScene_ = default(Scene);
 
@@ -277,7 +274,7 @@ namespace DTPrefabSandbox {
 			data_.prefabInstance = PrefabUtility.InstantiatePrefab(data_.prefabAsset) as GameObject;
 			PrefabUtility.DisconnectPrefabInstance(data_.prefabInstance);
 			#if DT_VALIDATOR
-			ReloadValidator();
+			SceneViewValidator.Refresh();
 			#endif
 
 			if (parent != null) {
@@ -340,34 +337,9 @@ namespace DTPrefabSandbox {
 			data_.prefabInstance = prefabInstance;
 
 			#if DT_VALIDATOR
-			ReloadValidator();
+			SceneViewValidator.Refresh();
 			#endif
 		}
-
-		#if DT_VALIDATOR
-		private static void ReloadValidator() {
-			if (data_ == null) {
-				Debug.LogError("Can't reload validator - _data is null!");
-				return;
-			}
-
-			GameObject prefabInstance = data_.prefabInstance;
-			if (prefabInstance == null) {
-				Debug.LogError("Can't reload validator - prefabInstance is null!");
-				return;
-			}
-
-			CleanupValidator();
-			prefabSandboxValidator_ = new PrefabSandboxValidator(prefabInstance);
-		}
-
-		private static void CleanupValidator() {
-			if (prefabSandboxValidator_ != null) {
-				prefabSandboxValidator_.Dispose();
-				prefabSandboxValidator_ = null;
-			}
-		}
-		#endif
 
 		private static void ClearPrefabData() {
 			data_ = null;
